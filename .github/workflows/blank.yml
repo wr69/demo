@@ -1,0 +1,26 @@
+name: CI
+on:
+#  schedule:
+#    - cron: '7 1,5,10,14,17,22 * * *'
+  # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#providing-inputs
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} 
+         # token: ${{ secrets.GH_TOKEN }} 
+          
+      
+      - name: Commit and push
+        run: bash wrapper.sh push "update app config"

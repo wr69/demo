@@ -1,0 +1,46 @@
+name: wtf14
+
+on:
+  workflow_dispatch:
+
+env:
+  TZ: Asia/Shanghai
+
+  
+jobs:
+  autogreen:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      actions: write
+      
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+        
+ #     - name: Get current date
+#        id: date
+#        run: |
+#          echo "action_time=$(date +'%Y-%m-%d %H:%M:%S')" >> "$GITHUB_ENV"
+          
+#      - name: Output current path
+#        run: |
+#          echo "Current path: $(pwd)"
+#          mkdir -p config
+#          echo "Hello, world!" > config/wc.yml
+          
+      - name: Commit and push
+        run: |
+          git config --local user.email "test+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          # git config --local user.name "${{ github.actor }}"
+          git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          # git pull --rebase
+          git checkout --orphan latest_branch
+          git rm -rf --cached .
+          git add -A
+          git commit -m "$(date +'%Y-%m-%d %H:%M:%S') OK"
+          git branch -D main
+          git branch -m main
+          git push -f origin main
