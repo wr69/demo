@@ -1,0 +1,49 @@
+name: CI
+on:
+#  schedule:
+#    - cron: '7 1,5,10,14,17,22 * * *'
+  # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#providing-inputs
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} 
+         # token: ${{ secrets.GH_TOKEN }} 
+          
+      
+      - name: test
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          QIANDAO: ${{ secrets.QIANDAO }}
+          WC: ${{ secrets.WC }}
+          WC1: ${{ secrets.WC1 }}
+        run: bash wrapper.sh
+        
+      - name: Commit and push
+        run: |
+          git config --local user.email "test+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          # git config --local user.name "${{ github.actor }}"
+          git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          # git pull --rebase
+          git checkout --orphan latest_branch
+          git rm -rf --cached .
+          git add -A
+          git commit -m "$(date +'%Y-%m-%d %H:%M:%S') OK"
+          git branch -D ${{ github.ref_name }}
+          git branch -m ${{ github.ref_name }}
+          git push -f origin ${{ github.ref_name }}
